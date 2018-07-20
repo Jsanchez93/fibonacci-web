@@ -38,7 +38,6 @@ class ModelBuilderCommand extends Command
           if (in_array('migrate', $info['options'])) {
             $this->info('Creating migration of '. $name .' table');
             CreateMigration::build($name, $info['fields']);
-            $this->info('Completed.');
           } 
         }
 
@@ -60,8 +59,11 @@ class ModelBuilderCommand extends Command
         $tables[$currentTable] = [
           'options' => explode(',',$value['C']),
         ];
-      } else {
-        $tables[$currentTable]['fields'][$value['B']] = explode(',',$value['C']);
+      } else if ($value['A']) {
+        $tables[$currentTable]['fields'][$value['A']] = [
+          $value['B'], 
+          explode(',',$value['C']),
+        ];
       }
     }
 
