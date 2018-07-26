@@ -8,6 +8,9 @@ use Symfony\Component\Console\Input\InputOption;
 use PhpOffice\PhpSpreadsheet\Helper\Sample;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Kadevjo\Fibonacci\Installation\CreateMigration;
+use Kadevjo\Fibonacci\Installation\CreateBREAD;
+use Kadevjo\Fibonacci\Installation\EnableAPI;
+use Illuminate\Support\Facades\Artisan;
 
 class ModelBuilderCommand extends Command
 {
@@ -41,9 +44,27 @@ class ModelBuilderCommand extends Command
           } 
         }
 
+        $this->info('Running migrations...');
+        Artisan::call('migrate', [
+          '--path' => 'database/migrations/fibonacci',
+        ]);
+
+        foreach ($tables as $name => $info) {
+          if (in_array('bread', $info['options'])) {
+            $this->info('Creating BREAD of '. $name .' table.');
+            CreateBREAD::build($name, $info['fields']);
+          }
+
+          if (in_array('api', $info['options'])) {
+            $this->info('Enabling API of '. $name);
+            EnableAPI::enable($name);
+          }
+        }
+
 
       } else {
         $this->error('File doesn\'t exist!');
+        $this->error("Make sure that the $fileName file exists in app\Fibonacci");
       }      
     } else {
       $this->error('Filename empty!');

@@ -2,7 +2,7 @@
 namespace Kadevjo\Fibonacci\Observers;
 
 use Kadevjo\Fibonacci\Models\Client;
-use Kadevjo\Fibonacci\Models\Binnacle;
+use Kadevjo\Fibonacci\Models\Log;
 
 class BaseObserver
 {
@@ -101,7 +101,7 @@ class BaseObserver
 
     public function saveLoggable(array $data){
         
-        $binnacle = new Binnacle();
+        $binnacle = new Log();
         
         $binnacle->forceFill($data)->save();
     }

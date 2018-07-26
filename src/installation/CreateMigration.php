@@ -7,10 +7,21 @@ use Illuminate\Support\Facades\File;
 
 class CreateMigration{
   private static $properties = [
-    'dinero'  => "\$table->decimal('##replace_name##', 10, 2);",
-    'texto'   => "\$table->string('##replace_name##', 191);",
-    'entero'  => "\$table->integer('##replace_name##');",
-    'email'   => "\$table->string('##replace_name##', 191);",
+    'name' => "\$table->string('##replace_name##', 191);",
+    'document' => "\$table->text('##replace_name##');",
+    'image' => "\$table->text('##replace_name##');",
+    'file' => "\$table->text('##replace_name##');",
+    'date' => "\$table->date('##replace_name##');",
+    'time' => "\$table->time('##replace_name##');",
+    'datetime' => "\$table->dateTime('##replace_name##');",
+    'money' => "\$table->decimal('##replace_name##', 10, 2);",
+    'email'   => "\$table->string('##replace_name##', 191)->unique();",
+    'phone' => "\$table->string('##replace_name##', 191);",
+    'url' => "\$table->longText('##replace_name##');",
+    'address' => "\$table->longText('##replace_name##');",
+    'location' => "\$table->text('##replace_name##');",
+    'description' => "\$table->text('##replace_name##');",
+    'number' => "\$table->integer('##replace_name##');",
   ];
 
   public static function build($name, $fields){
@@ -18,7 +29,7 @@ class CreateMigration{
       File::makeDirectory('database/migrations/fibonacci');
     }
 
-    $x = Artisan::call('make:migration', [
+    Artisan::call('make:migration', [
       'name' => 'create_'. $name .'_table',
       '--path' => 'database/migrations/fibonacci',
     ]);
@@ -27,13 +38,14 @@ class CreateMigration{
 
     $migrationString = '';
     foreach ($fields as $key => $value) {      
-      $currentField = static::$properties[$value[0]];
-      $currentField = str_replace('##replace_name##', $key, $currentField);
-      if (!in_array('requerido', $value[1])) {
-        $currentField = str_replace(';', '->nullable();', $currentField);
-      }
-
-      $migrationString .= "\n\t\t\t$currentField";
+      $currentField = isset(static::$properties[$value[0]]) ? static::$properties[$value[0]] : null;
+      if ($currentField) { 
+        $currentField = str_replace('##replace_name##', $key, $currentField);
+        if (!in_array('required', $value[1])) {
+          $currentField = str_replace(';', '->nullable();', $currentField);
+        }
+        $migrationString .= "\n\t\t\t$currentField";
+      }      
     }
 
     $str = file_get_contents(database_path("migrations/fibonacci/$createdName.php"));
